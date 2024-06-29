@@ -534,13 +534,14 @@ const definitions: Definition[] = [
             await reporting.activePower(endpoint, {min: 1, max: 600, change: 5});
             await reporting.instantaneousDemand(endpoint, {min: 1, max: 600, change: 1});
             endpoint.saveClusterAttributeKeyValue('seMetering', {multiplier: 1, divisor: 1000});
-            await reporting.currentSummDelivered(endpoint, {min: 1, max: 600, change: 5});
+            await reporting.currentSummDelivered(endpoint, {min: 1, max: 600, change: [0, 5]});
         },
     },
     {
         zigbeeModel: ['PMM-300Z2'],
         model: 'PMM-300Z2',
         vendor: 'ShinaSystem',
+        ota: ota.zigbeeOTA,
         description: 'SiHAS energy monitor',
         fromZigbee: [fz.electrical_measurement, fz.metering, fz.temperature],
         toZigbee: [tz.metering_power, tz.currentsummdelivered, tz.frequency, tz.powerfactor, tz.acvoltage, tz.accurrent, tz.temperature],
@@ -560,7 +561,7 @@ const definitions: Definition[] = [
             await reporting.powerFactor(endpoint, {min: 10, max: 600, change: 1});
             await reporting.rmsVoltage(endpoint, {min: 5, max: 600, change: 1});
             await reporting.rmsCurrent(endpoint, {min: 5, max: 600, change: 1});
-            await reporting.currentSummDelivered(endpoint, {min: 1, max: 600, change: 5});
+            await reporting.currentSummDelivered(endpoint, {min: 1, max: 600, change: [0, 5]});
             await reporting.temperature(endpoint, {min: 20, max: 300, change: 10});
             endpoint.saveClusterAttributeKeyValue('haElectricalMeasurement', {acFrequencyMultiplier: 1, acFrequencyDivisor: 10});
             await endpoint.configureReporting('haElectricalMeasurement', [{
@@ -575,6 +576,7 @@ const definitions: Definition[] = [
         zigbeeModel: ['PMM-300Z3'],
         model: 'PMM-300Z3',
         vendor: 'ShinaSystem',
+        ota: ota.zigbeeOTA,
         description: 'SiHAS 3phase energy monitor',
         fromZigbee: [fz.electrical_measurement, fz.metering, fz.temperature],
         toZigbee: [tz.metering_power, tz.currentsummdelivered, tz.frequency, tz.powerfactor, tz.acvoltage, tz.accurrent, tz.temperature],
@@ -594,7 +596,7 @@ const definitions: Definition[] = [
             await reporting.powerFactor(endpoint, {min: 10, max: 600, change: 1});
             await reporting.rmsVoltage(endpoint, {min: 5, max: 600, change: 1});
             await reporting.rmsCurrent(endpoint, {min: 5, max: 600, change: 1});
-            await reporting.currentSummDelivered(endpoint, {min: 1, max: 600, change: 5});
+            await reporting.currentSummDelivered(endpoint, {min: 1, max: 600, change: [0, 5]});
             await reporting.temperature(endpoint, {min: 20, max: 300, change: 10});
             endpoint.saveClusterAttributeKeyValue('haElectricalMeasurement', {acFrequencyMultiplier: 1, acFrequencyDivisor: 10});
             await endpoint.configureReporting('haElectricalMeasurement', [{

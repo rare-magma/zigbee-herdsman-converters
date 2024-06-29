@@ -352,8 +352,14 @@ const definitions: Definition[] = [
             await reporting.rmsVoltage(endpoint, {min: constants.repInterval.MINUTES_5, change: 400}); // Limit reports to every 5m, or 4V
             await reporting.readMeteringMultiplierDivisor(endpoint);
             await reporting.currentSummDelivered(endpoint, {change: [0, 20]}); // Limit reports to once every 5m, or 0.02kWh
-            await reporting.instantaneousDemand(endpoint, {min: constants.repInterval.MINUTES_5, change: 10});
+            /*
+                seMetering.instantaneousDemand and haElectricalMeasurement.activePower both return the same thing
+                spot checks indicate both return the exact same value, no point in having both report
+            */
+            // await reporting.instantaneousDemand(endpoint, {min: constants.repInterval.MINUTES_5, change: 10});
             await reporting.acFrequency(endpoint);
+            // read develco specific attribute for sw and hw version
+            await develco.configure.read_sw_hw_version(device);
         },
         endpoint: (device) => {
             return {default: 2};
@@ -379,7 +385,13 @@ const definitions: Definition[] = [
             await reporting.rmsVoltage(endpoint, {min: constants.repInterval.MINUTES_5, change: 400}); // Limit reports to every 5m, or 4V
             await reporting.readMeteringMultiplierDivisor(endpoint);
             await reporting.currentSummDelivered(endpoint, {change: [0, 20]}); // Limit reports to once every 5m, or 0.02kWh
-            await reporting.instantaneousDemand(endpoint, {min: constants.repInterval.MINUTES_5, change: 10});
+            /*
+                seMetering.instantaneousDemand and haElectricalMeasurement.activePower both return the same thing
+                spot checks indicate both return the exact same value, no point in having both report
+            */
+            // await reporting.instantaneousDemand(endpoint, {min: constants.repInterval.MINUTES_5, change: 10});
+            // read develco specific attribute for sw and hw version
+            await develco.configure.read_sw_hw_version(device);
         },
         endpoint: (device) => {
             return {default: 2};
@@ -848,7 +860,7 @@ const definitions: Definition[] = [
         },
     },
     {
-        zigbeeModel: ['SIRZB-110'],
+        zigbeeModel: ['SIRZB-110', 'SIRZB-111'],
         model: 'SIRZB-110',
         vendor: 'Develco',
         description: 'Customizable siren',
@@ -870,6 +882,9 @@ const definitions: Definition[] = [
         endpoint: (device) => {
             return {default: 43};
         },
+        whiteLabel: [
+            {model: 'SIRZB-111', vendor: 'Develco', description: 'Customizable siren', fingerprint: [{modelID: 'SIRZB-111'}]},
+        ],
         exposes: [e.battery(), e.battery_low(), e.test(), e.warning(), e.squawk(),
             e.numeric('max_duration', ea.ALL).withUnit('s').withValueMin(0).withValueMax(900)
                 .withDescription('Max duration of the siren'),

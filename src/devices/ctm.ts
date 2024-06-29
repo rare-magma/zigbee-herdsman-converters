@@ -7,6 +7,7 @@ import * as reporting from '../lib/reporting';
 import * as constants from '../lib/constants';
 import * as utils from '../lib/utils';
 import * as ota from '../lib/ota';
+import {battery, temperature, identify, light} from '../lib/modernExtend';
 const e = exposes.presets;
 const ea = exposes.access;
 
@@ -825,6 +826,13 @@ const definitions: Definition[] = [
         exposes: [e.power(), e.current(), e.voltage(), e.switch(), e.energy()],
     },
     {
+        zigbeeModel: ['mKomfy Tak'],
+        model: 'mKomfy_Tak',
+        vendor: 'CTM Lyng',
+        description: 'Temperature sensor',
+        extend: [battery(), temperature()],
+    },
+    {
         zigbeeModel: ['mKomfy'],
         model: 'mKomfy_Sensor',
         vendor: 'CTM Lyng',
@@ -1082,6 +1090,16 @@ const definitions: Definition[] = [
                 .withDescription('Specifies the initialisation light level. Can not be set lower than "ballast_minimum_level"'),
         ],
     },
+    {
+        fingerprint: [{modelID: 'DIMMER', manufacturerName: 'NorLum Dim OP'}],
+        model: '4503145',
+        vendor: 'CTM Lyng',
+        description: 'NorLum Dim OP, 2-250W rotary dimmer',
+        extend: [identify(), light({configureReporting: true, powerOnBehavior: true, effect: false})],
+        ota: ota.zigbeeOTA,
+        meta: {},
+    },
+
 ];
 
 export default definitions;

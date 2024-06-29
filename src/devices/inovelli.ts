@@ -66,7 +66,7 @@ const individualLedEffects: { [key: string]: number } = {
     clear_effect: 255,
 };
 
-const fanModes: { [key: string]: number } = {low: 2, smart: 4, medium: 86, high: 170, on: 255};
+const fanModes: { [key: string]: number } = {off: 0, low: 2, smart: 4, medium: 86, high: 170, on: 255};
 const breezemodes: string[] = ['off', 'low', 'medium', 'high'];
 
 const INOVELLI = 0x122f;
@@ -103,6 +103,9 @@ const intToFanMode = (value: number) => {
     }
     if (value == 4) {
         selectedMode = 'smart';
+    }
+    if (value == 0) {
+        selectedMode = 'off';
     }
     return selectedMode;
 };
@@ -505,13 +508,6 @@ const COMMON_ATTRIBUTES: {[s: string]: Attribute} = {
         description: 'Behavior of single tapping the on or off button. Old behavior turns the switch on or off. ' +
             'New behavior cycles through the levels set by P131-133. Down Always Off is like the new behavior but ' +
             'down always turns the switch off instead of going to next lower speed.',
-    },
-    fanTimerMode: {
-        ID: 121,
-        dataType: Zcl.DataType.BOOLEAN,
-        displayType: 'enum',
-        values: {'Disabled': 0, 'Enabled': 1},
-        description: 'Enable or disable advanced timer mode to have the switch act like a bathroom fan timer',
     },
     fanControlMode: {
         ID: 130,
@@ -976,6 +972,13 @@ const VZM35_ATTRIBUTES : {[s: string]: Attribute} = {
         values: {'Ceiling Fan (3-Speed)': 0, 'Exhaust Fan (On/Off)': 1},
         description: 'Use device in ceiling fan (3-Speed) or in exhaust fan (On/Off) mode.',
     },
+    fanTimerMode: {
+        ID: 121,
+        dataType: Zcl.DataType.BOOLEAN,
+        displayType: 'enum',
+        values: {'Disabled': 0, 'Enabled': 1},
+        description: 'Enable or disable advanced timer mode to have the switch act like a bathroom fan timer',
+    },
 };
 
 const VZM36_ATTRIBUTES : {[s: string]: Attribute} = {
@@ -1024,6 +1027,18 @@ const VZM36_ATTRIBUTES : {[s: string]: Attribute} = {
         min: 1,
         max: 254,
         description: 'Level of power output during Quick Start Light time (P23).',
+    },
+    leadingTrailingEdge_1: {
+        ID: 26,
+        dataType: Zcl.DataType.UINT8,
+        displayType: 'enum',
+        values: {'Leading Edge': 0, 'Trailing Edge': 1},
+        min: 0,
+        max: 1,
+        description: 'Leading Edge has a value of 0 and is the default value, whereas Trailing Edge has a value of ' +
+        '1. Please note that Trailing Edge is only available on neutral single-pole and neutral multi-way with an ' +
+        'aux/add-on switch (multi-way with a dumb/existing switch and non-neutral setups are not supported and ' +
+        'will default back to Leading Edge).',
     },
     smartBulbMode_1: {...COMMON_ATTRIBUTES.smartBulbMode},
     ledColorWhenOn_1: {...COMMON_ATTRIBUTES.ledColorWhenOn},
@@ -1745,6 +1760,21 @@ const fzLocal = {
             return msg.data;
         },
     } satisfies Fz.Converter,
+    vzm36_fan_mode: {
+        cluster: 'genLevelCtrl',
+        type: ['attributeReport', 'readResponse'],
+        convert: (model, msg, publish, options, meta) => {
+            if (msg.endpoint.ID == 2) {
+                if (msg.data.hasOwnProperty('currentLevel')) {
+                    const mode = intToFanMode(msg.data['currentLevel'] || 1);
+                    return {
+                        fan_mode: mode,
+                    };
+                }
+            }
+            return msg.data;
+        },
+    } satisfies Fz.Converter,
     fan_state: {
         cluster: 'genOnOff',
         type: ['attributeReport', 'readResponse'],
@@ -2375,7 +2405,7 @@ const definitions: Definition[] = [
             fz.identify,
             fzLocal.brightness,
             fzLocal.vzm36_fan_light_state,
-            fzLocal.fan_mode,
+            fzLocal.vzm36_fan_mode,
             fzLocal.breeze_mode,
             fzLocal.inovelli(VZM36_ATTRIBUTES),
         ],
